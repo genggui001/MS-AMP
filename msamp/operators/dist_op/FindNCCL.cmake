@@ -11,6 +11,8 @@
 #  NCCL_INCLUDE_DIR
 #  NCCL_LIBRARY
 
+set(NCCL_ROOT_DIR $ENV{NCCL_ROOT_DIR} CACHE PATH "Folder contains NVIDIA NCCL headers")
+
 find_path(NCCL_INCLUDE_DIR NAMES nccl.h
         PATHS ${NCCL_ROOT_DIR}/include
         )

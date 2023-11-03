@@ -12,7 +12,7 @@ from msamp.common.dtype import Dtypes
 
 class DistOp:
     """MSAMP Dist library wrapper class."""
-    lib_path = '/usr/local/lib/libmsamp_dist.so'
+    lib_path = 'libmsamp_dist.so'
     lib = None
 
     @classmethod
@@ -76,8 +76,8 @@ class DistOp:
     @classmethod
     def load_dist_lib(cls):
         """Load msamp dist lib."""
-        if not os.path.exists(cls.lib_path):
-            raise RuntimeError(f'Cannot find {cls.lib_path}, please build msamp dist lib first.')
+        # if not os.path.exists(cls.lib_path):
+        #     raise RuntimeError(f'Cannot find {cls.lib_path}, please build msamp dist lib first.')
         try:
             cls.lib = ctypes.cdll.LoadLibrary(cls.lib_path)
         except Exception as e:
