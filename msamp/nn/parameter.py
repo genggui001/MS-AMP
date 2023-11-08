@@ -26,3 +26,10 @@ class ScalingParameter(ScalingTensor):
     def clone(self):
         """Clone the parameter."""
         return ScalingParameter(super().clone(), requires_grad=self.requires_grad)
+
+    @property
+    def is_meta(self):
+        # not meta
+        return False
+
+

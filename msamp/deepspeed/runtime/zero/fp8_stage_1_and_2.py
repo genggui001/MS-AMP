@@ -973,3 +973,25 @@ class FP8DeepSpeedZeroOptimizer(DeepSpeedZeroOptimizer):
         if self.dtype == torch.bfloat16:
             return torch.float32
         return self.dtype
+
+    def _restore_from_bit16_weights(self):
+        # restore fp8
+        for i in range(len(self.bit16_groups)):
+            partition_id = dist.get_rank(group=self.real_dp_process_group[i])
+            ids = self.fp8_param_to_partition_ids[i]
+            
+            for lp in self.fp8_param_groups[i]:
+                param_id = self.get_fp8_param_id(lp)
+                partition_ids = ids[param_id]
+                assert len(partition_ids) == 1
+                src = partition_ids[0]
+                if src == partition_id:
+                    hp = lp._link_hp_param
+                    # DO NOT CHANGE THE POINTER OF `lp`
+                    hp.copy_(lp.cast(MASTER_WEIGHT_QTYPE))
+
+        super()._restore_from_bit16_weights()
+
+    # Refresh the fp32 master params from the fp16 or bfloat16 copies.
+    def refresh_fp32_params(self):
+        self._restore_from_bit16_weights()
