@@ -15,6 +15,7 @@ from deepspeed.runtime.zero.stage_1_and_2 import all_gather_dp_groups, DeepSpeed
 from msamp.common.tensor import ScalingTensor, ScalingMeta
 from msamp.common.dtype import Dtypes
 from msamp.operators.dist_op import DistOp
+from msamp.operators.arithmetic import Arithmetic
 
 SINGLE_PARTITION_OF_FP8_GROUPS = 'single_partition_of_fp8_groups'
 
@@ -345,10 +346,11 @@ class FP8DeepSpeedZeroOptimizer(DeepSpeedZeroOptimizer):
                 else:
                     avg_new = self.fp8_get_flat_partition(self.fp8_params_in_partition[i])
                     for accumulated_grad, new_avg_grad in zip(self.fp8_averaged_gradients[i], avg_new):
-                        accumulated_grad.data = (
-                            (accumulated_grad.float() +
-                             new_avg_grad.float()).cast(WEIGHT_GRAD_QTYPE, meta=accumulated_grad.meta)
-                        )
+                        # accumulated_grad.data = (
+                        #     (accumulated_grad.float() +
+                        #      new_avg_grad.float()).cast(WEIGHT_GRAD_QTYPE, meta=accumulated_grad.meta)
+                        # )
+                        Arithmetic.add_to_fp8(accumulated_grad.value, accumulated_grad.meta, new_avg_grad)
 
         self._release_ipg_buffers()
 
